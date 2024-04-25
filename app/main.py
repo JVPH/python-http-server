@@ -6,11 +6,20 @@ def main():
     conn, address = server_socket.accept() # wait for client
     with conn:
         while True:
-            data = conn.recv(1024).decode()
+            data = conn.recv(1024).decode().splitlines()
+            http_method, path, http_version = data[0].split(" ")
+
             if not data: break
-            conn.sendall("HTTP/1.1 200 OK\r\n\r\n".encode())
-
-
+            
+            response_codes = {
+                "ok": "HTTP/1.1 200 OK\r\n\r\n",
+                "not_found": "HTTP/1.1 404 Not Found\r\n\r\n"
+            }
+ 
+            if path == "/":
+                conn.sendall(response_codes["ok"].encode())
+            else:
+               conn.sendall(response_codes["not_found"].encode())
 
 if __name__ == "__main__":
     main()
